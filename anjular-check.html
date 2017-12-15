@@ -1,0 +1,190 @@
+<!DOCTYPE html >
+<html lang="en" ng-app="app">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .cc{
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+        }
+        .cc td{
+            text-align: center;
+            padding: 6px 6px;
+            border: 1px solid #ccc;
+            height: 20px;
+        }
+
+    </style>
+
+
+</head>
+<body ng-controller="siteCtrl">
+    <table border="1" cellpadding="0" cellspacing="0" class="cc" >
+        <tr>
+            <td>组</td>
+            <td>组下项</td>
+        </tr>
+
+        <tr ng-repeat="item1 in dataList">
+            <td>
+                <input type="checkbox" ng-model="item1.ProState" ng-click="selectItem(item1.data, item1.ProState)">
+            {{item1.ProList}}
+            </td>
+            <td>
+            <table border="0" cellpadding="0" cellspacing="0">
+                <tr ng-repeat="item in item1.data">
+                <td><input type="checkbox"  ng-model="item.state" name="" ng-checked="item.state"></td>
+                <td>{{item.Name}}</td>
+                <td>{{item.Url}}</td>
+                <td>{{item.Email}}</td>
+                    <td><button ng-click="add(item.ProName,$index)">增加</button></td>
+                </tr>
+            </table>
+            </td>
+        </tr>
+    </table>
+    <!--<script src="http://cdn.static.runoob.com/libs/angular.js/1.4.6/angular.min.js"></script>-->
+    <script type="text/javascript" src="vender/angular.min.js"></script>
+<script>
+    var app = angular.module('app', []);
+    app.controller('siteCtrl',function ($scope,$http) {
+        
+        $scope.dataList =[
+            {
+                "ProList":"a1",
+                "ProName":"g1",
+                "ProState":false,
+                "data" :[
+                            {
+                            "Name":"john1",
+                            "Url":"ImJohn.cn",
+                            "Email":"go",
+                            "state":true,
+                            "ProName":"g1"
+                            },
+                            {
+                                "Name":"john1",
+                                "Url":"ImJohn.cn",
+                                "Email":"go",
+                                "state":false,
+                                "ProName":"g1"
+                            },
+                            {
+                                "Name":"john1",
+                                "Url":"ImJohn.cn",
+                                "Email":"go",
+                                "state":false,
+                                "ProName":"g1"
+                            }
+                        ]
+            },
+            {
+                "ProList":"a2",
+                "ProName":"g2",
+                "ProState":false,
+                "data":[
+                    {
+                        "Name":"john2",
+                        "Url":"ImJohn.cn",
+                        "Email":"go",
+                        "state":false,
+                        "ProName":"g2"
+                    },
+                    {
+                        "Name":"john2",
+                        "Url":"ImJohn.cn",
+                        "Email":"go",
+                        "state":false,
+                        "ProName":"g2"
+                    },
+                    {
+                        "Name":"john2",
+                        "Url":"ImJohn.cn",
+                        "Email":"go",
+                        "state":false,
+                        "ProName":"g2"
+                    }
+                ]
+            },
+            {
+                "ProList":"a3",
+                "ProName":"g3",
+                "ProState":false,
+                "data":[
+                    {
+                        "Name":"john3",
+                        "Url":"ImJohn.cn",
+                        "Email":"go",
+                        "state":false,
+                        "ProName":"g3"
+                    },
+                    {
+                        "Name":"john3",
+                        "Url":"ImJohn.cn",
+                        "Email":"go",
+                        "state":false,
+                        "ProName":"g3"
+                    },
+                    {
+                        "Name":"john3",
+                        "Url":"ImJohn.cn",
+                        "Email":"go",
+                        "state":false,
+                        "ProName":"g3"
+                    }
+                ]
+            }
+        ];
+
+        $scope.selectItem=function (data, state) {
+            for(var i=0;i<data.length;i++){  
+                if(state===true){  
+                    data[i].state=true;  
+                }else {  
+                    data[i].state=false;  
+                }  
+            } 
+        };
+        $scope.add=function(item,index){
+            var map = {
+                "Name":item.Name,
+                "Url":item.Url,
+                "Email":item.Email,
+                "state":true,
+                "ProName":item.ProName
+            };
+
+            $scope.dataList.map(function (item3) {
+                $scope.idata =item3.data;
+                $scope.idata.map(function(tem){
+                    if(tem.ProName==item){
+                        $scope.tdata =[];
+                        $scope.tdata.push(tem)
+                    }
+                    $scope.tdata.splice(index+1,0,map);
+                    item = $scope.tdata;
+                    return item;
+                });
+            });
+
+        };
+        $scope.$watch('dataList', function(newV, oldV){
+            console.log(newV)
+            for(var i=0;i<newV.length;i++){  
+                for(var j=0;j<newV[i].data.length;j++){
+                    if(!newV[i].data[j].state){
+                        newV[i].ProState = false;
+                        console.log(222)
+                        return;
+                    }
+                }
+                console.log(111)
+                newV[i].ProState = true;
+            } 
+        })
+    })
+
+</script>
+</body>
+</html>
