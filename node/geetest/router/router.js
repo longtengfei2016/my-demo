@@ -9,5 +9,8 @@ router.use(function(req, res, next){
 });
 router.post('/login',function(req, res){
     console.log('login')
+    res.json({
+        result: 'success'
+    })
 });
 module.exports = router;
