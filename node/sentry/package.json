@@ -13,7 +13,9 @@
   "author": "longtengfei",
   "license": "ISC",
   "devDependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "querystring": "^0.2.0",
     "request": "^2.88.0"
   }
 }
