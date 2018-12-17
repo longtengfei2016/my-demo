@@ -74,10 +74,29 @@ router.get('/projects/:organizationName/:projectName',function(req, res){
 })
 
 // 获取项目issue统计数据
-router.get('/projects/:organizationName/:projectName/stats',function(req, res){
+/**
+ * body
+ * @ since 统计开始时间
+ * @ resolution 时间片 一小时时间片: 10s  一天时间片: 1h  一周时间片: 1d
+ */
+router.post('/projects/:organizationName/:projectName/stats',function(req, res){
     const organizationName = req.params.organizationName
     const projectName = req.params.projectName
-    request(`/api/0/projects/${organizationName}/${projectName}/stats/`, {}, (error, response, body) => {
+    let queryStr = ''
+    if (req.body) {
+        if (Object.keys(req.body).length !== 2) {
+            console.error('参数缺省');
+            return;
+        }
+        Object.keys(req.body).forEach((key) => {
+            if (key === 'since') {
+                // 转为unix毫秒数
+                req.body[key] = moment(req.body[key]).unix()
+            }
+        })
+        queryStr = `?${querystring.stringify(req.body)}`
+    }
+    request(`/api/0/projects/${organizationName}/${projectName}/stats/${queryStr}`, {}, (error, response, body) => {
         if (error) {
             console.error(error);
             return;
@@ -120,10 +139,13 @@ router.post('/projects/:organizationName/:projectName/issues',function(req, res)
                 if (key === 'keyword') {
                     connectStr += (connectStr.length > 0 ? ` ${req.body[key]}` : `${req.body[key]}`)
                 } else if (key === 'rangeTime') {
-                    const startTime = moment(req.body[key][0]).format('YYYY-MM-DDTHH:mm:ss')
-                    const endTime = moment(req.body[key][1]).format('YYYY-MM-DDTHH:mm:ss')
-                    const timeQuery = `event.timestamp:>${startTime} event.timestamp:<${endTime}`
-                    connectStr += (connectStr.length > 0 ? ` ${timeQuery}` : `${timeQuery}`)
+                    if (req.body[key] && req.body[key].length > 0) {
+                        // 转为2018-08-18T08:18:18格式
+                        const startTime = moment(req.body[key][0]).format('YYYY-MM-DDTHH:mm:ss')
+                        const endTime = moment(req.body[key][1]).format('YYYY-MM-DDTHH:mm:ss')
+                        const timeQuery = `event.timestamp:>${startTime} event.timestamp:<${endTime}`
+                        connectStr += (connectStr.length > 0 ? ` ${timeQuery}` : `${timeQuery}`)
+                    }
                 } else {
                     connectStr += (connectStr.length > 0 ? ` ${key}:${req.body[key]}` : `${key}:${req.body[key]}`)
                 }
