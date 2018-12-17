@@ -1,5 +1,6 @@
 var router = require('express').Router()
 var querystring = require('querystring')
+var moment = require('moment')
 var request = require('../utils/request')
 
 router.all('*', function(req, res, next) {
@@ -32,7 +33,11 @@ router.get('/projects',function(req, res){
             return;
         }
         if (!error && response.statusCode !== 200) {
-            res.send(body);
+            res.json({
+                code: response.statusCode,
+                result: 'error',
+                data: JSON.parse(body)
+            })
         } else {
             res.json({
                 code: '200',
@@ -53,7 +58,11 @@ router.get('/projects/:organizationName/:projectName',function(req, res){
             return;
         }
         if (!error && response.statusCode !== 200) {
-            res.send(body);
+            res.json({
+                code: response.statusCode,
+                result: 'error',
+                data: JSON.parse(body)
+            })
         } else {
             res.json({
                 code: '200',
@@ -74,7 +83,11 @@ router.get('/projects/:organizationName/:projectName/stats',function(req, res){
             return;
         }
         if (!error && response.statusCode !== 200) {
-            res.send(body);
+            res.json({
+                code: response.statusCode,
+                result: 'error',
+                data: JSON.parse(body)
+            })
         } else {
             res.json({
                 code: '200',
@@ -90,8 +103,11 @@ router.get('/projects/:organizationName/:projectName/stats',function(req, res){
  * body
  * @ sort 排序方式: 时间倒序 date 时间顺序 new 异常频繁次数 freq
  * @ keyword 关键字
- * @ type 异常类型
+ * @ logger 异常类型
  * @ level 异常级别
+ * @ release 版本
+ * @ device 设备
+ * @ rangeTime 异常时间
  */
 router.post('/projects/:organizationName/:projectName/issues',function(req, res){
     const organizationName = req.params.organizationName
@@ -100,9 +116,14 @@ router.post('/projects/:organizationName/:projectName/issues',function(req, res)
     if (req.body) {
         let connectStr = ''
         Object.keys(req.body).forEach((key) => {
-            if (key !== 'sort') {
+            if (key !== 'sort' && req.body[key]!=='') {
                 if (key === 'keyword') {
                     connectStr += (connectStr.length > 0 ? ` ${req.body[key]}` : `${req.body[key]}`)
+                } else if (key === 'rangeTime') {
+                    const startTime = moment(req.body[key][0]).format('YYYY-MM-DDTHH:mm:ss')
+                    const endTime = moment(req.body[key][1]).format('YYYY-MM-DDTHH:mm:ss')
+                    const timeQuery = `event.timestamp:>${startTime} event.timestamp:<${endTime}`
+                    connectStr += (connectStr.length > 0 ? ` ${timeQuery}` : `${timeQuery}`)
                 } else {
                     connectStr += (connectStr.length > 0 ? ` ${key}:${req.body[key]}` : `${key}:${req.body[key]}`)
                 }
@@ -117,7 +138,11 @@ router.post('/projects/:organizationName/:projectName/issues',function(req, res)
             return;
         }
         if (!error && response.statusCode !== 200) {
-            res.send(body);
+            res.json({
+                code: response.statusCode,
+                result: 'error',
+                data: JSON.parse(body)
+            })
         } else {
             res.json({
                 code: '200',
@@ -137,7 +162,59 @@ router.get('/issues/:id',function(req, res){
             return;
         }
         if (!error && response.statusCode !== 200) {
-            res.send(body);
+            res.json({
+                code: response.statusCode,
+                result: 'error',
+                data: JSON.parse(body)
+            })
+        } else {
+            res.json({
+                code: '200',
+                result: 'success',
+                data: JSON.parse(body)
+            })
+        }
+    })
+})
+
+// 更新issue详情
+router.post('/issues/:id',function(req, res){
+    const id = req.params.id
+    request(`/api/0/issues/${id}/`, { method: 'PUT', body: JSON.stringify(req.body) }, (error, response, body) => {
+        if (error) {
+            console.error(error);
+            return;
+        }
+        if (!error && response.statusCode !== 200) {
+            res.json({
+                code: response.statusCode,
+                result: 'error',
+                data: JSON.parse(body)
+            })
+        } else {
+            res.json({
+                code: '200',
+                result: 'success',
+                data: JSON.parse(body)
+            })
+        }
+    })
+})
+
+// 获取issue最新的event详情
+router.get('/issues/:id/events/latest',function(req, res){
+    const id = req.params.id
+    request(`/api/0/issues/${id}/events/latest/`, {}, (error, response, body) => {
+        if (error) {
+            console.error(error);
+            return;
+        }
+        if (!error && response.statusCode !== 200) {
+            res.json({
+                code: response.statusCode,
+                result: 'error',
+                data: JSON.parse(body)
+            })
         } else {
             res.json({
                 code: '200',
@@ -166,7 +243,36 @@ router.post('/projects/:organizationName/:projectName/tags',function(req, res){
             return;
         }
         if (!error && response.statusCode !== 200) {
-            res.send(body);
+            res.json({
+                code: response.statusCode,
+                result: 'error',
+                data: JSON.parse(body)
+            })
+        } else {
+            res.json({
+                code: '200',
+                result: 'success',
+                data: JSON.parse(body)
+            })
+        }
+    })
+})
+
+// 获取项目成员
+router.get('/projects/:organizationName/:projectName/members',function(req, res){
+    const organizationName = req.params.organizationName
+    const projectName = req.params.projectName
+    request(`/api/0/projects/${organizationName}/${projectName}/members/`, {}, (error, response, body) => {
+        if (error) {
+            console.error(error);
+            return;
+        }
+        if (!error && response.statusCode !== 200) {
+            res.json({
+                code: response.statusCode,
+                result: 'error',
+                data: JSON.parse(body)
+            })
         } else {
             res.json({
                 code: '200',
