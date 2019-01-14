@@ -9,7 +9,7 @@ function Request(url, options = {}, callback = null) {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: 'Bearer 46e692c17a45408fb5c40178b4e75229ba945c92c82b4c2e977fc707ad1f94fb'
+            Authorization: 'Bearer fef3777bf485423380f59e57896e5f97881b185ef4a44c5ab308554500857c77'
         }
     }
     const requestOptions = Object.assign(defaultOptions, options)

@@ -257,7 +257,12 @@ router.post('/projects/:organizationName/:projectName/tags',function(req, res){
     const projectName = req.params.projectName
     let tagName = ''
     if (req.body) {
-        tagName = req.body.name
+        if (req.body.name) {
+            tagName = req.body.name
+        } else {
+            console.error('参数错误')
+            return
+        }
     }
     request(`/api/0/projects/${organizationName}/${projectName}/tags/${tagName}/values/?query=`, {}, (error, response, body) => {
         if (error) {
